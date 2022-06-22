@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0-1/css/all.min.css" integrity="sha512-wDB6AYiYP4FO5Sxieamqy9wtpAY3qdHMqlhZecIEUu1YjkLw5gQf/4ZDgOzmCBAF5SheMjmugkpUSVoUrGbLkQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="main_div">
+        <div class="music-container">
+            <h2 id="title">Beast Mode</h2>
+            <h3 id="artist">Anirudh Ravichander</h3>
+            <div class="img_container">
+                <img src="./images/Beast Mode Beast.jpg" alt="beast theme">
+            </div>
+            <audio src="./music/Beast Mode Beast.mp3"></audio>
+
+            <!-- progress bar -->
+
+            <div class="progressbar_container" id="progressbar_container">
+                <div class="progress_duration_meter">
+                    <div id="current_time">0:00</div>
+                    <div id="duration">0:00</div>
+                </div>
+                <div class="progress_div" id="progress_div">
+                    <div class="progress" id="progress"></div>
+                </div>
+            </div>
+
+            <!-- controls -->
+            <div class="music_controls">
+                <i class="fas fa-backward" id="prev" title="Previous"></i> 
+                <i class="fas fa-play main_button" id="play" title="Play"></i>
+                <i class="fas fa-forward" id="next" title="Next"></i>
+            </div>
+        </div>
+    </div>
+    <script>
+        const img = document.querySelector('img');
+        const music = document.querySelector("audio");
+        const play = document.getElementById('play');
+        const title = document.getElementById('title');
+        const artist = document.getElementById('artist');
+        const next = document.getElementById('next');
+        const prev = document.getElementById('prev');
+
+        let progress = document.getElementById('progress');
+        let total_duration = document.getElementById('duration');
+        let total_currentTime = document.getElementById('current_time');
+
+        const progress_div = document.getElementById("progress_div");
+
+        const songs = [
+            {
+            name: "Beast Mode Beast",
+            title: "Beast Mode",
+            artist:"Anirudh Ravichander"
+           },
+           {
+            name: "Pasoori Shae Gill",
+            title: "Pasoori",
+            artist:"Shae Gill and Ali Sethi"
+           },
+           {
+            name: "Title Track Bhool Bhulaiyaa 2",
+            title: "BhoolBhulaiyaa 2",
+            artist:"Bob,Mellow D and Neeraj"
+          }
+        ]
+         
+         let isPlaying = false;
+
+         //for play
+         const playMusic = ()=>{
+            isPlaying=true;
+            music.play();
+            play.classList.replace('fa-play','fa-pause');
+            img.classList.add('anime')
+         };
+   
+         //for pause
+         const pauseMusic = ()=>{
+            isPlaying = false;
+            music.pause();
+            play.classList.replace('fa-pause','fa-play');
+            img.classList.remove('anime')
+         };
+   
+
+
+         play.addEventListener('click',()=>{
+            isPlaying ? pauseMusic() : playMusic();
+         })
+
+         //change music
+
+         const loadSong = (songs) => {
+           title.textContent = songs.title;
+           artist.textContent = songs.artist;
+           music.src = `music/${songs.name}.mp3`;
+           img.src = `images/${songs.name}.jpg`
+
+         }
+
+         songIndex = 0;
+        //  loadSong(songs[0]);
+         
+         const nextSong = () => {
+            songIndex = (songIndex + 1) % songs.length;
+            loadSong(songs[songIndex]);
+            playMusic();
+         }
+
+         const prevSong = () =>{
+            songIndex = (songIndex - 1 + songs.length) % songs.length;
+            loadSong(songs[songIndex]);
+            playMusic();
+         }
+
+        //  progress js work
+
+        music.addEventListener('timeupdate',(event)=>{
+            // console.log(event); 
+            const{currentTime, duration} = event.srcElement;
+            // console.log(currentTime);
+            // console.log(duration);
+
+            let progress_time = (currentTime/duration) * 100;
+            progress.style.width = `${progress_time}%`
+
+            // music duration update
+            let min_duration = Math.floor(duration /60);
+            let sec_duration = Math.floor(duration % 60);
+            
+            let tot_duration = `${min_duration}:${sec_duration}`;
+            if(duration){
+                total_duration.textContent = `${tot_duration}`;
+            }
+
+             // current duration update
+             let min_currentTime = Math.floor(currentTime /60);
+            let sec_currentTime = Math.floor(currentTime % 60);
+            
+            if(sec_currentTime < 10){
+                sec_currentTime =`0${sec_currentTime}`;
+            }
+            let tot_currentTime = `${min_currentTime}:${sec_currentTime}`;
+           
+                total_currentTime.textContent = `${tot_currentTime}`;
+            
+        });
+
+
+        // progress on click 
+
+        progress_div.addEventListener("click", (event) => {
+            const{duration} = music;
+            let move_progress = (event.offsetX / event.srcElement.clientWidth) * duration;
+            // console.log(move_progress);
+
+            music.currentTime = move_progress;
+        })
+
+        //after song end next song 
+        music.addEventListener('ended', nextSong);
+
+
+         next.addEventListener("click",nextSong);
+         prev.addEventListener("click",prevSong)
+
+    </script>
+</body>
+</html>
